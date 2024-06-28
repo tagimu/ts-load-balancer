@@ -1,0 +1,29 @@
+{
+  "name": "ts-load-balancer",
+  "version": "0.0.1",
+  "description": "Basic L7 load balancer ",
+  "main": "index.ts",
+  "scripts": {
+    "start": "tsx --watch ./index.ts --port=8080 strategy=rrobin servers=http://localhost:8081/",
+    "test": "glob '**/*.spec.ts' -c 'tsx --test'"
+  },
+  "keywords": [
+    "load-balancer",
+    "nodejs",
+    "typescript"
+  ],
+  "author": "Tagir M.",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^20.14.9",
+    "esbuild": "^0.21.5",
+    "tsx": "^4.15.7",
+    "typescript": "^5.5.2"
+  },
+  "engines": {
+    "node": "^20"
+  },
+  "devDependencies": {
+    "glob": "^10.4.2"
+  }
+}
