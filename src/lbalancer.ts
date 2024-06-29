@@ -10,14 +10,22 @@ export interface BalancerOptions {
     strategy?: BalancerStrategy;
 }
 
+interface NetworkProvider {
+    createServer: (cb: (req: http.IncomingMessage, res: http.OutgoingMessage) => void) => http.Server;
+    request: (opts: http.RequestOptions, cb: (res: http.IncomingMessage) => void) => http.ClientRequest 
+}
+
 // TODO: https configuration
 export class Balancer {
     public server: http.Server;
     private strategy: Strategy;
 
-    constructor(private options: BalancerOptions, private net = http) {
+    constructor(private options: BalancerOptions, private net: NetworkProvider = {
+        createServer: http.createServer,
+        request: http.request,
+    }) {
         if (!options.port) {
-            options.port = 8080;
+            options.port = 80;
         }
 
         if (!options.strategy) {
@@ -32,7 +40,7 @@ export class Balancer {
                 break;
         }
 
-        this.server = http.createServer((req, res) => this.handle(req, res));
+        this.server = this.net.createServer((req, res) => this.handle(req, res));
     }
 
     public listen(): void {
@@ -42,7 +50,7 @@ export class Balancer {
     }
 
     private handle(req: http.IncomingMessage, res: http.OutgoingMessage): void {
-        let server;
+        let server: string;
 
         try {
             server = this.strategy.exec(req);
@@ -61,12 +69,14 @@ export class Balancer {
             headers: req.headers,
         };
 
-        const forwardReq = http.request(options, (forwardRes) => {
+        const forwardReq = this.net.request(options, (forwardRes) => {
             res.writeHead(forwardRes.statusCode, forwardRes.headers);
             forwardRes.pipe(res);
+
+            // Handle errors here
+            // Error 5** -> toggle active servers in balancing strategy 
         });
 
         req.pipe(forwardReq);
-        // forwardReq.end()
     }
 }

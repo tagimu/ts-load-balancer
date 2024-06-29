@@ -1,7 +1,7 @@
 {
   "name": "ts-load-balancer",
   "version": "0.0.1",
-  "description": "Basic L7 load balancer ",
+  "description": "Basic L7 load balancer",
   "main": "index.ts",
   "scripts": {
     "start": "tsx --watch ./index.ts --port=8080 strategy=rrobin servers=localhost:8081,localhost:8082",
