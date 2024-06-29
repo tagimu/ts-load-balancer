@@ -1,5 +1,5 @@
 import { argv } from 'node:process';
-import { BalancerStrategy } from "@src/strategy/allowed-strategies";
+import { STRATEGIES, BalancerStrategy } from "@src/strategy/allowed-strategies";
 
 export interface BalancerCliConf {
     servers?: string[];
@@ -41,7 +41,7 @@ export function getConfigFromCli(args: string[] = argv): BalancerCliConf  {
         }
 
         if (key === 'strategy') {
-            if (val in ALLOWED_STRATEGIES) {
+            if (val in STRATEGIES) {
                 conf.strategy = val as BalancerStrategy;
             }
             continue;
