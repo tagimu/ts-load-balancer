@@ -1,7 +1,7 @@
 import http from 'node:http';
 import { argv } from 'node:process';
 
-// Stub backend server
+// Stub backend server: arg1 = port, arg2 = isHealthy
 // > server.js 8081 true
 const port = parseInt(argv[2], 10);
 const health = argv[3] === 'true';
