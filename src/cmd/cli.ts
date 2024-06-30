@@ -5,6 +5,7 @@ export interface BalancerCliConf {
     servers?: string[];
     port?: number;
     strategy?: BalancerStrategy;
+    healthCheckInterval?: number;
 }
 
 const COMMAND_DELIMITER = '=';
@@ -14,10 +15,11 @@ const COMMAND_DELIMITER = '=';
  * Parameter 'servers' is required.
  * 
  * Example:
- * >ts-load-balancer -p 8080 --servers=a,b,c strategy=rrobin
+ * >ts-load-balancer -p 8080 --servers=a,b,c --strategy=rrobin --check-interval=10000
  * port: 8080,
  * servers: ['a', 'b', 'c']
  * strategy: 'rrobin'
+ * interval: period in ms between health checks
  */
 export function getConfigFromCli(args: string[] = argv): BalancerCliConf  {
     const conf: BalancerCliConf = {};
@@ -28,28 +30,39 @@ export function getConfigFromCli(args: string[] = argv): BalancerCliConf  {
             const port = parseInt(val, 10);
 
             if (isNaN(port)) {
-                throw Error(`port parameter is not a number: ${val}`); 
+                throw new Error(`--port is not a number: ${val}`); 
             }
 
             conf.port = port;
             continue;
         }
 
-        if (key === 'servers') {
+        if (key === '--servers') {
             conf.servers = val.split(',');
             continue;
         }
 
-        if (key === 'strategy') {
+        if (key === '--strategy') {
             if (val in STRATEGIES) {
                 conf.strategy = val as BalancerStrategy;
             }
             continue;
         }
+
+        if (key === '--check-interval' || key === '-hc') {
+            const ms = parseInt(val, 10);
+
+            if (isNaN(ms)) {
+                throw new Error(`--check-interval is not a number: ${val}`);
+            }
+
+            conf.healthCheckInterval = ms;
+            continue;
+        }
     }
 
     if (!conf.servers) {
-        throw Error("Parameter 'servers' is required");
+        throw new Error("Parameter '--servers' is required");
     }
     
     return conf;
@@ -78,7 +91,7 @@ export function parseArguments(args: string[]): Map<string, string> {
         const delimIndex = arg.indexOf(COMMAND_DELIMITER);
 
         if (arg.charAt(0) === COMMAND_DELIMITER) {
-            throw Error(`Invalid argument, starts with '=': ${arg}`);
+            throw new Error(`Invalid argument, starts with '=': ${arg}`);
         }
 
         if (delimIndex >= 1) {

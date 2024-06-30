@@ -12,8 +12,8 @@ describe('CLI', () => {
 
     it('Should return parsed arguments, separated by space', () => {
         assert.deepEqual(
-            parseArguments(['node', 'script.js', '--port=8080', 'servers=a,b,c']),
-            new Map([['--port', '8080'], ['servers', 'a,b,c']])
+            parseArguments(['node', 'script.js', '--port=8080', '--servers=a,b,c']),
+            new Map([['--port', '8080'], ['--servers', 'a,b,c']])
         );
     });
 
@@ -23,9 +23,21 @@ describe('CLI', () => {
         );
     });
 
+    it('Should errored if --port is not a number', () => {
+        assert.throws(
+            () => getConfigFromCli(['node', 'script.js', '--port=&7as'])
+        );
+    });
+
+    it('Should errored if --check-interval is not a number', () => {
+        assert.throws(
+            () => getConfigFromCli(['node', 'script.js', '--check-interval=&7as'])
+        );
+    });
+
     it('Should parse arguments to balancer config', () => {
         assert.deepEqual(
-            getConfigFromCli(['node', 'script.js', '--port=8080', 'strategy=rrobin', 'servers=a,b,c']),
+            getConfigFromCli(['node', 'script.js', '--port=8080', '--strategy=rrobin', '--servers=a,b,c']),
             { port: 8080, servers: ['a', 'b', 'c'], strategy: "rrobin"}         
         );
     });
