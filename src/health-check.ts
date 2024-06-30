@@ -14,10 +14,10 @@ type CheckResult = {
     error?: string;
 }
 /**
- * HealthCgecker class implements next functionality:
- * - repeatedly checks servers for availability using GET /health http request.
- *   2** -> available, other -> not available
- * - emits events for every check with paylode type ServerHealth
+ * HealthChecker class implements next functionality:
+ * - repeatedly checks servers for availability using "GET /health" http request.
+ *   statusCode 2** -> available, other -> not available
+ * - emits events for every check with payload type ServerHealth
  */
 export class HealthChecker extends EventEmitter {
     public static CHECK_EVENT = 'checked';
@@ -32,12 +32,17 @@ export class HealthChecker extends EventEmitter {
 
     /** 
      * Starts job for checking servers.
-     * Butches request by groups of ${PARALLEL_REQUEST} items
+     * Batches requests by groups of ${PARALLEL_REQUEST} items
      * 
      * Method will try to fit all requests in the ${ms} interval by dividing interval on amount of batches
+     * 
      * Example:
-     * with 3 batches of 3 requests and 10_000 interval method will check health every 10_000 / 3 = 3s
-     * iterating through batches  
+     * We have 9 servers wich gives 3 batches by 3 request each = 9 requests total and 10_000 interval.
+     * Method will check health every 10_000 / 3 = 3s against every batch in order.
+     * 
+     * Timeline:
+     * --------- [1,2,3] --------- [4,5,6] ---------- [7,8,9] --------- [1,2,3] --------- ...
+     * 0sec      3sec              6sec               9sec              12sec
      */
     public run(): void {
         const batchesAmount = Math.ceil(this.servers.length / PARALLEL_REQUESTS);
