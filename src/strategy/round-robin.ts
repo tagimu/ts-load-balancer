@@ -9,7 +9,7 @@ import { Strategy } from "./strategy";
 */ 
 export class RoundRobinStrategy implements Strategy {
     // TODO: Use LinkedList instead
-    private queue = [];
+    private queue: string[] = [];
 
     constructor(servers: string[]) {
         for (let url of servers) {
@@ -19,7 +19,7 @@ export class RoundRobinStrategy implements Strategy {
 
     public exec(req: http.IncomingMessage): string {
         if (!this.queue.length) {
-            throw new Error('There are no servers available!'); 
+            throw new Error('There are no servers available!');
         }
 
         const url = `http://${this.queue[0]}${req.url}`;
@@ -28,10 +28,10 @@ export class RoundRobinStrategy implements Strategy {
         return url;
     }
 
-    public toggleServer(url: string, active: boolean): void {
-        if (active && !this.queue.includes(url)) {
+    public toggleServer(url: string, available: boolean): void {
+        if (available && !this.queue.includes(url)) {
             this.queue.push(url);
-        } else {
+        } else if (!available) {
             this.queue = this.queue.filter(s => s !== url);
         }
     }

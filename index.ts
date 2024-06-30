@@ -8,5 +8,3 @@ const server = new Balancer({
 });
 
 server.listen();
-
-console.log("Balancer is runing on port :8080")
