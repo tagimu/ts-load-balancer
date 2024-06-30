@@ -3,27 +3,47 @@ import { URL } from 'node:url';
 import { BalancerStrategy, STRATEGIES } from "./strategy/allowed-strategies";
 import { Strategy } from './strategy/strategy';
 import { RoundRobinStrategy } from './strategy/round-robin';
+import { HealthChecker, ServerHealth } from './health-check';
 
 export interface BalancerOptions {
     servers: string[];
     port?: number;
     strategy?: BalancerStrategy;
+    healthCheckInterval?: number;
 }
 
-interface NetworkProvider {
+interface DependenciesProvider {
     createServer: (cb: (req: http.IncomingMessage, res: http.OutgoingMessage) => void) => http.Server;
     request: (opts: http.RequestOptions, cb: (res: http.IncomingMessage) => void) => http.ClientRequest 
+    healthChecker: HealthChecker; 
 }
 
-// TODO: https configuration
+/**
+ * Class provides load balancer functionality.
+ * 
+ * Options:
+ * Port: server starts on default port :80 if other was not provided.
+ * Servers: perform balancing on list of the servers.
+ *          For now format of adress without protocol is ${host}, f.e. 'localhost:8081'
+ * Strategy: load balancer uses one of the currently implemented algorithms. RoundRobin as default.
+ * 
+ * Health check:
+ * Balancer use interval async health check, making a request 'GET /health' for every server in the list.
+ * If error was received, marks server as not available for the next check.
+ */
+// TODO: Add https configuration
 export class Balancer {
     public server: http.Server;
     private strategy: Strategy;
 
-    constructor(private options: BalancerOptions, private net: NetworkProvider = {
-        createServer: http.createServer,
-        request: http.request,
-    }) {
+    constructor(
+        private options: BalancerOptions,
+        private deps: DependenciesProvider = {
+            createServer: http.createServer,
+            request: http.request,
+            healthChecker: new HealthChecker(options.servers),
+        }) {
+
         if (!options.port) {
             options.port = 80;
         }
@@ -40,7 +60,17 @@ export class Balancer {
                 break;
         }
 
-        this.server = this.net.createServer((req, res) => this.handle(req, res));
+        this.deps.healthChecker = new HealthChecker(options.servers, options.healthCheckInterval);
+        this.deps.healthChecker.run();
+        this.deps.healthChecker.on(HealthChecker.CHECK_EVENT, (health: ServerHealth) => {
+            if (!health.available) {
+                console.log(`${Date.now()} info: type=health-check message="Server not available!" server=${health.url} ${health.error}`);
+            }
+
+            this.strategy.toggleServer(health.url, health.available);
+        });
+
+        this.server = this.deps.createServer((req, res) => this.handle(req, res));
     }
 
     public listen(): void {
@@ -49,17 +79,30 @@ export class Balancer {
         });
     }
 
+    /**
+     * Forward every request to the one of the servers,
+     * using provided balancing algorithm, default 'Round Robin'
+     * 
+     * If error occures, mark server not available. 
+     */
     private handle(req: http.IncomingMessage, res: http.OutgoingMessage): void {
         let server: string;
 
         try {
             server = this.strategy.exec(req);
         } catch (err) {
-            console.error(err);
+            console.error(`${Date.now()} error: type=balancing message="${err}"`);
             return;
         }
 
-        const url = new URL(server);
+        let url: URL;
+
+        try {
+            url = new URL(server);
+        } catch (err) {
+            console.error(`${Date.now()} error: type=internal message="couldn't parse server URL", err=${err.message}`);
+            return;
+        }
 
         const options = {
             host: url.hostname,
@@ -69,12 +112,20 @@ export class Balancer {
             headers: req.headers,
         };
 
-        const forwardReq = this.net.request(options, (forwardRes) => {
+        const forwardReq = this.deps.request(options, (forwardRes) => {
+            const { statusCode } = forwardRes;
+
             res.writeHead(forwardRes.statusCode, forwardRes.headers);
             forwardRes.pipe(res);
 
-            // Handle errors here
-            // Error 5** -> toggle active servers in balancing strategy 
+            // Mark server as not available for balancing
+            if (statusCode >= 500) {
+                this.strategy.toggleServer(url.host, false);
+            }
+
+            if (statusCode >= 400) {
+                console.log(`${Date.now()} error: type=request method=${req.method} code=${statusCode} url=${server}`);
+            } 
         });
 
         req.pipe(forwardReq);
