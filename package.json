@@ -4,7 +4,7 @@
   "description": "Basic L7 load balancer",
   "main": "index.ts",
   "scripts": {
-    "start": "tsx --watch ./index.ts -p=8080 -hci=2000 --strategy=rrobin --servers=localhost:8081,localhost:8082",
+    "start": "tsx --watch ./index.ts -p=8080 -hc=2000 --strategy=rrobin --servers=localhost:8081,localhost:8082",
     "test": "glob '**/*.spec.ts' -c 'tsx --test'"
   },
   "keywords": [
@@ -14,16 +14,18 @@
   ],
   "author": "Tagir M.",
   "license": "ISC",
-  "dependencies": {
+  "devDependencies": {
+    "@eslint/js": "^9.6.0",
+    "@types/eslint__js": "^8.42.3",
     "@types/node": "^20.14.9",
     "esbuild": "^0.21.5",
+    "eslint": "^8.57.0",
+    "glob": "^10.4.2",
     "tsx": "^4.15.7",
-    "typescript": "^5.5.2"
+    "typescript": "^5.5.2",
+    "typescript-eslint": "^7.14.1"
   },
   "engines": {
     "node": "^20"
-  },
-  "devDependencies": {
-    "glob": "^10.4.2"
   }
 }
