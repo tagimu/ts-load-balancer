@@ -62,7 +62,7 @@ export class HealthChecker extends EventEmitter {
         let i = 0;
 
         setInterval(() => {
-            for (let url of batches[i]) {
+            for (const url of batches[i]) {
                 this.makeRequest(url).then(result => {
                     this.emit(HealthChecker.CHECK_EVENT, {
                         url,

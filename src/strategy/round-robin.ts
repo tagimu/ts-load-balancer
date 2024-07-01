@@ -12,7 +12,7 @@ export class RoundRobinStrategy implements Strategy {
     private queue: string[] = [];
 
     constructor(servers: string[]) {
-        for (let url of servers) {
+        for (const url of servers) {
             this.queue.push(url);
         }
     }

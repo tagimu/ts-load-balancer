@@ -42,7 +42,8 @@ export class Balancer {
             createServer: http.createServer,
             request: http.request,
             healthChecker: new HealthChecker(options.servers),
-        }) {
+        },
+    ) {
 
         if (!options.port) {
             options.port = 80;
@@ -83,8 +84,9 @@ export class Balancer {
      * Forward every request to the one of the servers,
      * using provided balancing algorithm, default 'Round Robin'
      * 
-     * If error occures, mark server not available. 
+     * If error occures, mark server unavailable. 
      */
+    // TODO: Track response time from balancer to server
     private handle(req: http.IncomingMessage, res: http.OutgoingMessage): void {
         let server: string;
 
@@ -92,6 +94,9 @@ export class Balancer {
             server = this.strategy.exec(req);
         } catch (err) {
             console.error(`${Date.now()} error: type=balancing message="${err}"`);
+            // @ts-expect-error node typing are invalid here and can't resolve method
+            res.writeHead(503);
+            res.end('Service Unavailable');
             return;
         }
 
@@ -115,6 +120,7 @@ export class Balancer {
         const forwardReq = this.deps.request(options, (forwardRes) => {
             const { statusCode } = forwardRes;
 
+            // @ts-expect-error node typings are invalid here
             res.writeHead(forwardRes.statusCode, forwardRes.headers);
             forwardRes.pipe(res);
 

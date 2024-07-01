@@ -25,7 +25,7 @@ export function getConfigFromCli(args: string[] = argv): BalancerCliConf  {
     const conf: BalancerCliConf = {};
     const parsedArgs = parseArguments(args);
 
-    for (let [key, val] of parsedArgs.entries()) {
+    for (const [key, val] of parsedArgs.entries()) {
         if (key === '--port' || key === '-p') {
             const port = parseInt(val, 10);
 
@@ -37,7 +37,7 @@ export function getConfigFromCli(args: string[] = argv): BalancerCliConf  {
             continue;
         }
 
-        if (key === '--servers') {
+        if (key === '--servers' || key === '-s') {
             conf.servers = val.split(',');
             continue;
         }
