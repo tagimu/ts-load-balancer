@@ -3,10 +3,14 @@
 import { getConfigFromCli } from './src/cmd/cli';
 import { Balancer } from './src/lbalancer';
 
-const config = getConfigFromCli();
-const server = new Balancer({
-    servers: config.servers ?? [],
-    ...config
-});
+try {
+    const config = getConfigFromCli();
+    const server = new Balancer({
+        servers: config.servers ?? [],
+        ...config
+    });
 
-server.listen();
+    server.listen();
+} catch (err) {
+    console.log(`ts-load-balancer error: ${err}`);
+}

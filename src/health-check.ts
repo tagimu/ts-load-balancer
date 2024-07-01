@@ -34,7 +34,7 @@ export class HealthChecker extends EventEmitter {
      * Starts job for checking servers.
      * Batches requests by groups of ${PARALLEL_REQUEST} items
      * 
-     * Method will try to fit all requests in the ${ms} interval by dividing interval on amount of batches
+     * Method will try to fit all requests in the ${ms} interval by dividing interval by amount of batches
      * 
      * Example:
      * We have 9 servers wich gives 3 batches by 3 request each = 9 requests total and 10_000 interval.
