@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { getConfigFromCli } from './src/cmd/cli';
 import { Balancer } from './src/lbalancer';
 
