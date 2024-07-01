@@ -7,8 +7,9 @@
   "scripts": {
     "start": "tsx --watch ./index.ts -p=8080 -hc=2000 --strategy=rrobin --servers=localhost:8081,localhost:8082",
     "test": "glob '**/*.spec.ts' -c 'tsx --test'",
-    "build": "esbuild index.ts --bundle --outfile=dist/index.js --platform=node --target=node20 && mkdir bin && cp ./dist/index.js bin/",
-    "types": "npm-dts generate --entry=index.ts --output=dist/index.d.ts -L debug"
+    "build": "esbuild index.ts --bundle --outfile=dist/index.js --platform=node --target=node20 && npm run copy:bin",
+    "types": "npm-dts generate --entry=index.ts --output=dist/index.d.ts -L debug",
+    "copy:bin": "rm -rf bin/ && mkdir bin && cp ./dist/index.js bin/"
   },
   "bin": {
     "tslb": "bin/index.js"
