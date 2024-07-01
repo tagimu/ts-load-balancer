@@ -2,16 +2,16 @@
   "name": "ts-load-balancer",
   "version": "0.0.1",
   "description": "Basic L7 load balancer",
-  "main": "./dist/index.js",
+  "main": "./bin/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
     "start": "tsx --watch ./index.ts -p=8080 -hc=2000 --strategy=rrobin --servers=localhost:8081,localhost:8082",
     "test": "glob '**/*.spec.ts' -c 'tsx --test'",
-    "build": "esbuild index.ts --bundle --outfile=dist/index.js --platform=node --target=node20",
+    "build": "esbuild index.ts --bundle --outfile=dist/index.js --platform=node --target=node20 && mkdir bin && cp ./dist/index.js bin/",
     "types": "npm-dts generate --entry=index.ts --output=dist/index.d.ts -L debug"
   },
   "bin": {
-    "tslb": "./dist/index.js"
+    "tslb": "bin/index.js"
   },
   "files": [
     "dist"
@@ -23,7 +23,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/tagimu/ts-load-balancer.git"
+    "url": "git+https://github.com/tagimu/ts-load-balancer.git"
   },
   "author": "Tagir M.",
   "license": "MIT",
