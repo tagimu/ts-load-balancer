@@ -14,11 +14,11 @@ To start load balancer you need to specify port and list of backend hosts:
 ```sh
 tslb -p 8080 -s=localhost:8081,localhost:8082
 ```
-All options:
-`--servers -s`: **required**, list of hosts. Format: `${hostname}:${port}`, f.e. `example.com:8081`, `localhost:8282` 
-`--port -p`: default `80`, specify port for load balancer server
-`--strategy`: `rrobin` by default. (TODO: implement more startegies)
-`--check-interval -hc`: default 10000, interval in ms between health cheks 
+### All options:
+- `--servers -s`: **required**, list of hosts. Format: `${hostname}:${port}`, f.e. `example.com:8081`, `localhost:8282` 
+- `--port -p`: default `80`, specify port for load balancer server
+- `--strategy`: `rrobin` by default. (TODO: implement more startegies)
+- `--check-interval -hc`: default 10000, interval in ms between health cheks 
 
 ## Developing
 ```sh
