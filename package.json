@@ -1,6 +1,6 @@
 {
   "name": "ts-load-balancer",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Basic L7 load balancer",
   "main": "./bin/index.js",
   "types": "./dist/index.d.ts",
@@ -9,7 +9,8 @@
     "test": "glob '**/*.spec.ts' -c 'tsx --test'",
     "build": "esbuild index.ts --bundle --outfile=dist/index.js --platform=node --target=node20 && npm run copy:bin",
     "types": "npm-dts generate --entry=index.ts --output=dist/index.d.ts -L debug",
-    "copy:bin": "rm -rf bin/ && mkdir bin && cp ./dist/index.js bin/"
+    "copy:bin": "rm -rf bin/ && mkdir bin && cp ./dist/index.js bin/",
+    "integrations": "tsx --test './test/load-balancer.test.ts'"
   },
   "bin": {
     "tslb": "bin/index.js"

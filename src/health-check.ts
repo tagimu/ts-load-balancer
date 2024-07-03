@@ -79,7 +79,7 @@ export class HealthChecker extends EventEmitter {
     /**
      * Return CheckResult with error field for the convinient logging. 
      */
-    private makeRequest(url): Promise<CheckResult> {
+    private makeRequest(url: string): Promise<CheckResult> {
         return new Promise(resolve => {
             this.request(`http://${url}/health`, (res) => {
                 const { statusCode } = res;
