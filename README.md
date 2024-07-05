@@ -31,6 +31,11 @@ npm start
 ```
 Will run balancer on the port `:8080`. You can edit CLI parameters in the `package.json`.
 
+```sh
+npm start:https
+```
+Start balancer using https and certificate from `./stub` directory.
+
 ## Stub
 For integration testing there is a stub for backend server.
 ```sh
