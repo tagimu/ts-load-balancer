@@ -5,7 +5,7 @@
   "main": "./bin/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "start": "tsx --watch ./index.ts -p=8080 -hc=2000 --strategy=rrobin --servers=localhost:8081,localhost:8082",
+    "start": "tsx --watch ./index.ts -p=8080 -hc=2000 --strategy=rrobin --servers=localhost:8081,localhost:8082,localhost:8083",
     "test": "glob '**/*.spec.ts' -c 'tsx --test'",
     "build": "esbuild index.ts --bundle --outfile=dist/index.js --platform=node --target=node20 && npm run copy:bin",
     "types": "npm-dts generate --entry=index.ts --output=dist/index.d.ts -L debug",

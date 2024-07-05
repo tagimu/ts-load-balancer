@@ -4,7 +4,7 @@ import { argv } from 'node:process';
 // stub backend server: arg1 = port, arg2 = ishealthy
 // > server.js 8081 true
 const port = parseInt(argv[2], 10);
-const health = argv[3] === 'true';
+let health = argv[3] === 'true';
 const server = http.createServer((req, res) => {
     console.log(req.url, health);
 
@@ -29,9 +29,9 @@ const server = http.createServer((req, res) => {
 });
 
 // Switch availability for integration tests
-process.on('message', ({ availability }) => {
-    console.log('Receiver, ', availability);
-    health = availability; 
+process.on('message', ({ available }) => {
+    console.log('Receiver, ', available);
+    health = available; 
 });
 
 server.listen(port, () => console.log(`server is ready ${port}`));
