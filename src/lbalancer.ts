@@ -65,7 +65,7 @@ export class Balancer {
         this.deps.healthChecker.run();
         this.deps.healthChecker.on(HealthChecker.CHECK_EVENT, (health: ServerHealth) => {
             if (!health.available) {
-                console.log(`${Date.now()} info: type=health-check message="Server not available!" server=${health.url} ${health.error}`);
+                console.log(`${Date.now()} info: type=health-check message="server is unavailable" server=${health.url} ${health.error}`);
             }
 
             this.strategy.toggleServer(health.url, health.available);
@@ -131,7 +131,16 @@ export class Balancer {
 
             if (statusCode >= 400) {
                 console.log(`${Date.now()} error: type=request method=${req.method} code=${statusCode} url=${server}`);
-            } 
+            }
+        });
+
+        forwardReq.on('error', (err: {code: string}) => {
+            console.log(`${Date.now()} error: type=request method=${req.method} code=${err.code} url=${server}`);
+            this.strategy.toggleServer(url.host, false);
+
+            // @ts-expect-error node typings are invalid
+            res.writeHead(503);
+            res.end('Service Unavailable');
         });
 
         req.pipe(forwardReq);
