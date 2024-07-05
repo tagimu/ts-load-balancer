@@ -40,7 +40,8 @@ For unit test run
 npm test
 ```
 ## Integrations
-Integration test is located in `/test`.
+Integration test is located in `/test`. w
 ```sh
 npm run integrations
 ```
+It will run stub servers on ports 8081,8082,8083. And balancer on port 8080.
