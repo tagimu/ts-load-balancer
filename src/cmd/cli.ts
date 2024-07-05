@@ -7,7 +7,8 @@ export interface BalancerCliConf {
     strategy?: BalancerStrategy;
     healthCheckInterval?: number;
     protocol?: 'http' | 'https';
-    certDir?: string;
+    cert?: string;
+    key?: string;
 }
 
 const COMMAND_DELIMITER = '=';
@@ -23,7 +24,8 @@ const COMMAND_DELIMITER = '=';
  * strategy: 'rrobin'
  * interval: period in ms between health checks
  * protocol: http or https | http by default,
- * cert-dir: directory with .crt and .key files
+ * cert: path to .crt
+ * key: path to .key file
  */
 export function getConfigFromCli(args: string[] = argv): BalancerCliConf  {
     const conf: BalancerCliConf = {};
@@ -79,14 +81,19 @@ export function getConfigFromCli(args: string[] = argv): BalancerCliConf  {
             continue;
         }
 
-        if (key === '--cert-dir') {
-            conf.certDir = val;
+        if (key === '--cert') {
+            conf.cert= val;
+            continue;
+        }
+
+        if (key === '--key') {
+            conf.key = val;
             continue;
         }
     }
 
-    if (isHttps && !conf.certDir) {
-        throw new Error(`provide --cert-dir for https configuration`);
+    if (isHttps && (!conf.cert || !conf.key)) {
+        throw new Error(`provide --cert and --key for https configuration`);
     }
 
     if (!conf.servers) {
