@@ -1,4 +1,6 @@
 import http from 'node:http';
+import https from 'node:https';
+import fs from 'node:fs';
 import { URL } from 'node:url';
 import { BalancerStrategy, STRATEGIES } from "./strategy/allowed-strategies";
 import { Strategy } from './strategy/strategy';
@@ -10,10 +12,14 @@ export interface BalancerOptions {
     port?: number;
     strategy?: BalancerStrategy;
     healthCheckInterval?: number;
+    protocol?: 'http' | 'https';
+    cert?: string;
+    key?: string; 
 }
 
 interface DependenciesProvider {
     createServer: (cb: (req: http.IncomingMessage, res: http.OutgoingMessage) => void) => http.Server;
+    createHttpsServer: (options: https.ServerOptions, cb: (req: http.IncomingMessage, res: http.OutgoingMessage) => void) => https.Server;
     request: (opts: http.RequestOptions, cb: (res: http.IncomingMessage) => void) => http.ClientRequest 
     healthChecker: HealthChecker; 
 }
@@ -35,11 +41,13 @@ interface DependenciesProvider {
 export class Balancer {
     public server: http.Server;
     private strategy: Strategy;
+    private 
 
     constructor(
         private options: BalancerOptions,
         private deps: DependenciesProvider = {
             createServer: http.createServer,
+            createHttpsServer: https.createServer,
             request: http.request,
             healthChecker: new HealthChecker(options.servers),
         },
@@ -71,7 +79,16 @@ export class Balancer {
             this.strategy.toggleServer(health.url, health.available);
         });
 
-        this.server = this.deps.createServer((req, res) => this.handle(req, res));
+        if (options.protocol === 'http') {
+            this.server = this.deps.createServer((req, res) => this.handle(req, res));
+        } else {
+            const ops = {
+                key: fs.readFileSync(options.key),
+                cert: fs.readFileSync(options.cert),
+            };
+
+            this.server = this.deps.createHttpsServer(ops, (req, res) => this.handle(req, res));
+        }
     }
 
     public listen(): void {
