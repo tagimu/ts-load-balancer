@@ -79,15 +79,15 @@ export class Balancer {
             this.strategy.toggleServer(health.url, health.available);
         });
 
-        if (options.protocol === 'http') {
-            this.server = this.deps.createServer((req, res) => this.handle(req, res));
-        } else {
+        if (options.protocol === 'https') {
             const ops = {
                 key: fs.readFileSync(options.key),
                 cert: fs.readFileSync(options.cert),
             };
 
             this.server = this.deps.createHttpsServer(ops, (req, res) => this.handle(req, res));
+        } else {
+            this.server = this.deps.createServer((req, res) => this.handle(req, res));
         }
     }
 
