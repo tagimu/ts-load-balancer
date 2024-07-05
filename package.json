@@ -1,6 +1,6 @@
 {
   "name": "ts-load-balancer",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "description": "Basic L7 load balancer",
   "main": "./bin/index.js",
   "types": "./dist/index.d.ts",

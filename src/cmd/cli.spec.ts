@@ -41,4 +41,10 @@ describe('CLI', () => {
             { port: 8080, servers: ['a', 'b', 'c'], strategy: "rrobin"}         
         );
     });
+
+    it('Should throw error if no --cert-dir provided with https', () => {
+        assert.throws(
+            () => getConfigFromCli(['node', 'script.js', '-p=8080', '-s=a,b,c', '--protocol=https']),
+        )
+    })
 });

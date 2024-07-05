@@ -6,6 +6,8 @@ export interface BalancerCliConf {
     port?: number;
     strategy?: BalancerStrategy;
     healthCheckInterval?: number;
+    protocol?: 'http' | 'https';
+    certDir?: string;
 }
 
 const COMMAND_DELIMITER = '=';
@@ -20,10 +22,14 @@ const COMMAND_DELIMITER = '=';
  * servers: ['a', 'b', 'c']
  * strategy: 'rrobin'
  * interval: period in ms between health checks
+ * protocol: http or https | http by default,
+ * cert-dir: directory with .crt and .key files
  */
 export function getConfigFromCli(args: string[] = argv): BalancerCliConf  {
     const conf: BalancerCliConf = {};
     const parsedArgs = parseArguments(args);
+
+    let isHttps = false;
 
     for (const [key, val] of parsedArgs.entries()) {
         if (key === '--port' || key === '-p') {
@@ -59,6 +65,28 @@ export function getConfigFromCli(args: string[] = argv): BalancerCliConf  {
             conf.healthCheckInterval = ms;
             continue;
         }
+
+        if (key === '--protocol') {
+            if (val !== 'http' && val !== 'https') {
+                throw new Error(`--protocol should be 'http' or 'https'`);
+            }
+
+            if (val === 'https') {
+                isHttps = true;
+            }
+
+            conf.protocol = val;
+            continue;
+        }
+
+        if (key === '--cert-dir') {
+            conf.certDir = val;
+            continue;
+        }
+    }
+
+    if (isHttps && !conf.certDir) {
+        throw new Error(`provide --cert-dir for https configuration`);
     }
 
     if (!conf.servers) {
