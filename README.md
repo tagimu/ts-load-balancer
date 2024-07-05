@@ -1,6 +1,6 @@
 # ts-load-balancer
 
-Basic zero dependency load balancer written as [Coding Challenge](https://codingchallenges.fyi/challenges/challenge-load-balancer/).
+Basic zero dependency load balancer written as [Coding Challenge](https://codingchallenges.fyi/challenges/challenge-load-balancer/). HTTPS included.
 
 ## Install
 Install ts-load-balancer:
