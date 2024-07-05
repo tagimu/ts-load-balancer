@@ -39,3 +39,8 @@ For unit test run
 ```sh
 npm test
 ```
+## Integrations
+Integration test is located in `/test`.
+```sh
+npm run integrations
+```
