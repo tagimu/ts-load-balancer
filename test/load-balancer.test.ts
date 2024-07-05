@@ -130,7 +130,7 @@ describe('ts-load-balancer:', () => {
         // Send request to the :8083 which is working
         const goodRequest = await makeRequest(BALANCER_URL + 'good');
         assert.ok(goodRequest.success);
-        // Send request to the :8084 which is not working from the strat
+        // Send request to the :8084 which is not working from the begining
         const badRequest = await makeRequest(BALANCER_URL + 'good');
         assert.deepEqual(badRequest, { code: 503, success: false }); 
     });
@@ -182,7 +182,7 @@ describe('ts-load-balancer:', () => {
         balancer.stdout?.on('data', stdoutHandler);
     });
 
-    it('Health check pushes server in queue if the server is availbale again', async () => {
+    it('Health check enqueue the server if it is availbale again', async () => {
         // Mark :8082 available
         mockServers.get('8082')?.send({ available: true });
 
