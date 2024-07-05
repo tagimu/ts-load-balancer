@@ -32,16 +32,16 @@ interface DependenciesProvider {
  * Servers: perform balancing on list of the servers.
  *          For now format of adress without protocol is ${host}, f.e. 'localhost:8081'
  * Strategy: load balancer uses one of the currently implemented algorithms. RoundRobin as default.
- * 
+ * Protocol: http or https, will create corresponding server. For https configuration
+ *           .cert and .key files should be provided.
+ *  
  * Health check:
  * Balancer use interval async health check, making a request 'GET /health' for every server in the list.
  * If error was received, marks server as not available for the next check.
  */
-// TODO: Add https configuration
 export class Balancer {
     public server: http.Server;
     private strategy: Strategy;
-    private 
 
     constructor(
         private options: BalancerOptions,
